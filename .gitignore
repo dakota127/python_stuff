@@ -1,0 +1,8 @@
+.DS_Store
+MyResources
+Projekt_Description
+Sources/oldstuff
+*.*~
+*.log
+*.pid
+#.*
