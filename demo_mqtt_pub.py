@@ -167,7 +167,7 @@ def setup():
                         client = progname, 
                         ipadr = mqtt_broker_ip_cmdline, 
                         retry = retry, 
-                        conf = "/demo_mqtt_config.ini" )    # creat instance, of Class MQTT_Conn  
+                        conf = "/demo_config.ini" )    # creat instance, of Class MQTT_Conn  
                         
 #     check the status of the connection
     mqtt_connect, mqtt_error = mqttc.get_status()           # get connection status

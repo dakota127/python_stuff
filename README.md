@@ -17,6 +17,12 @@ Folder sub contains the three Python files (classes)
 Folder mosquitto_config holds files to setup a user config file for the mosquitto browser on the pi
 Folder documentation contains a pdf for each demo explaining its workings
 
+How to get all the files to your pi:
+Open a terminal window, login to the pi and in the user pi home folder execute this command:
+git clone https://github.com/dakota127/python_stuff.git
+
+This will give you a folder python_stuff.
+
 Free to use, modify, and distribute with proper attribution.
 Frei für jedermann, vollständige Quellangabe vorausgesetzt.
 
