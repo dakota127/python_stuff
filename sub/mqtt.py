@@ -6,7 +6,7 @@
 #   
 #   Encapsulates everything MQTT
 #
-#   inherits from MYPrint and ConfigRead Classes
+#   Inherits from MYPrint and ConfigRead Classes
 #   provides these Public Methods
 #   
 #       publish_msg (...)
@@ -38,8 +38,8 @@ from time import sleep
 import paho.mqtt.client as mqtt
 import socket
 from datetime import date
-from sub.myprint import MyPrint              # Class MyPrint zum printern, debug output
-from sub.configread import ConfigRead
+from sub.myprint import MyPrint             # Class MyPrint
+from sub.configread import ConfigRead       # Class ConfigRead 
 
 
 # define debug levels, 0= default, oterh values with commandline parameter -d
@@ -50,29 +50,25 @@ DEBUG_LEVEL3=3
 CONNECT_COUNTER = 5     # loopp counter für mqtt connection
 PUBLISH_COUNTER = 2
 RETRY_INTERVALL = 4     # seconds
-RETRY_NUMBER    =  3    # how many times, do this by default
+RETRY_NUMBER    = 3    # how many times, do this by default
                         # if retry is True, do it forever..
 #-------------------------------------------------
 # Class MQTT_Conn inherits from Class MyPrint and from
 #   class ConfigRead 
-#
 #--------------------------------------------------
 class MQTT_Conn(MyPrint):
     ' class MQTTConn '
 
 #    Definition of Class Variables
-    instzahler=0           # Class variable Anzahl  instanzen
+    instzahler=0           # Class variable Number of  instanzen
 
 
-    
-
-    
 #-------Constructor der Klasse ------------------------------------------
 # 
 #
     def __init__ (self , debug , path , client , ipadr , retry , conf ):
         
-    # class variables    
+    # class instance variables    
         self.debug = debug
         self.myprint (DEBUG_LEVEL2,     "--> MQTTConn init_ called, ipadr: {}".format(ipadr))    
         self.path = path                 # pfad  where the script is running
@@ -210,7 +206,7 @@ class MQTT_Conn(MyPrint):
         
 
 # set userid and password            
-#        self.mqttc.username_pw_set(username = "peter" , password = self.cfgdir_mqtt["mqtt_pw"])  # use this for test with wrong user-id
+
         self.mqttc.username_pw_set(username = self.cfgdir_mqtt["mqtt_userid"], password = self.cfgdir_mqtt["mqtt_pw"])
 
  # Connect with MQTT Broker    
@@ -406,13 +402,11 @@ class MQTT_Conn(MyPrint):
         # Disconnect from MQTT_Broker
             self.mqttc.disconnect()
 
-
-
 #
-
 #-------------------------------------------------
 #
 # ----- MAIN --------------------------------------
 if __name__ == "__main__":
     print ("mqtt.py is not callable on the commandline")
     sys.exit(2)
+#  --- End of Code ---------------------------------
