@@ -42,8 +42,8 @@ configval={
 
 
 
-config_filename = "demo_readconfig.ini"      # name of config file (in current dir)
-config_section = "peter"
+config_filename = "demo_config.ini"      # name of config file (in current dir)
+config_section = "peter"                # look up values in this section
 
 DEBUG_LEVEL0=0
 DEBUG_LEVEL1=1
