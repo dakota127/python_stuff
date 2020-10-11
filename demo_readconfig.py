@@ -30,7 +30,7 @@ from sub.configread import ConfigRead
 # key-value pairs
 # values are default values, the will not be changed if key not found in configfile 
 configval={
-        "url"           : "defaulturl", 
+        "url"           : "www.google.com", 
         "username"      : "usernamedefault", 
         "password"      : "passworddefault",
         "abc"           : "default",
@@ -44,6 +44,7 @@ configval={
 
 config_filename = "demo_config.ini"      # name of config file (in current dir)
 config_section = "peter"                # look up values in this section
+progname = "demo_readconfig.py"
 
 DEBUG_LEVEL0=0
 DEBUG_LEVEL1=1
@@ -51,7 +52,6 @@ DEBUG_LEVEL2=2
 DEBUG_LEVEL3=3
 debug=0
 #
-progname = "demo_readconfig.py"
 
 # ***** Function Parse commandline arguments ***********************
 #----------------------------------------------------------
@@ -75,8 +75,6 @@ def argu():
                  
     return(args)
     
-
-
 
 # *************************************************
 # Program starts here
