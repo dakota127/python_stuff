@@ -24,8 +24,10 @@ else
 	echo "$file not found, also kopiere"
 	cp -n -v my_mqtt_password.txt /etc/mosquitto
 fi
+# encrypt the passowrd file
+mosquitto_passwd -U /etc/mosquitto/my_mqtt_password.txt 
 
-echo "Files fuer mosquitto gemacht"
+echo "mosquitto user config done"
 echo " "
 
 
