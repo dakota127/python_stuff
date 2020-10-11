@@ -25,7 +25,7 @@ most of the code and make it easy to implement programs publishing and subscribi
 
 Open a terminal window, login to the pi and in the user pi home folder execute this command:
 
-´git clone https://github.com/dakota127/python_stuff.git´
+> git clone https://github.com/dakota127/python_stuff.git
 
 This will give you a folder python_stuff.
 
