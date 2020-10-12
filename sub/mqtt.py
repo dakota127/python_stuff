@@ -110,7 +110,7 @@ class MQTT_Conn(MyPrint):
         
         
         config = ConfigRead(debug_level = self.debug)        # instanz der ConfigRead Class
-        ret = config.config_read(self.path + self.config_filename,self.config_section,self.cfgdir_mqtt)  # alese von abschnitt mqtt
+        ret = config.config_read(self.config_filename, self.config_section,self.cfgdir_mqtt)  # alese von abschnitt mqtt
 #        ret = 0
 
         if ret > 0:

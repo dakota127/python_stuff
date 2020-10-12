@@ -4,7 +4,7 @@
 #
 # This is program ONE of a suite of two programs to demonstrate and test
 # MQTT functionality on a Raspberry Pi
-# Runs with Python3   and not tested under Python2 (it should run, however)
+# Runs with Python3   and NOT tested under Python2 
 # 
 # This version of the program uses the  MQTT_Conn class tha encapsulates MQTT
 
@@ -37,7 +37,14 @@ myprint = 0
 mqttc=0
 wait_time = 10
 retry = False                   # do not retry on connect to brokaer
-progname = "pgm_sub2: "
+
+
+progname = "demo_mqtt_sub"
+logfile_name = "demo_mqtt.log"
+configfile_name = "demo_config.ini"
+
+
+
 
 # ***** Function Parse commandline arguments ***********************
 #----------------------------------------------------------
@@ -131,22 +138,24 @@ def setup():
     print(progname + "started: {}".format(time.strftime('%X')))   
     argu()                          # get commandline argumants
     path = os.path.dirname(os.path.realpath(__file__))    # current path
-    logfile_name = path + "/demo_mqtt.log"
-    print ("Name logfile: {} ".format(logfile_name) )
-    
+
+    print ("Name logfile: {} ".format( path + "/" + logfile_name) )
+    print ("Name configfile: {} ".format( path + "/" + configfile_name) ) 
+     
+# create Instance of MyPrint Class 
     myprint = MyPrint(  appname = progname, 
                     debug_level = debug,
-                    logfile = logfile_name ) 
-                        # Instanz von MyPrint Class erstellen
-                                            # provide app_name and logfilename
+                    logfile =  path + "/" + logfile_name ) 
+  
 
+ # create Instance of MQTT-Conn Class  
     mqttc = MQTT_Conn ( debug = debug, 
                         path = path, 
                         client = progname, 
                         ipadr = mqtt_broker_ip_cmdline, 
                         retry = retry, 
-                        conf = "/demo_config.ini" )    # creat instance, of Class MQTT_Conn  
-
+                        conf = path + "/" + configfile_name)    # creat instance, of Class MQTT_Conn  
+                        
     mqtt_connect, mqtt_error = mqttc.get_status()           # get connection status
     #  returns mqtt_error = 128 if not connected to broker
     if mqtt_connect == True:

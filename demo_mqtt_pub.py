@@ -4,7 +4,7 @@
 #
 # This is program TWO of a suite of two programs to demonstrate and test
 # MQTT functionality on a Raspberry Pi
-# Runs with Python3   and not tested under Python2 (it should run, however)
+# Runs with Python3   and not tested under Python2 
 # 
 # This version of the program uses the  MQTT_Conn class tha encapsulates MQTT
 #
@@ -48,9 +48,13 @@ MESSAGES = [                    # message payloads to be sent
     "Henry Poincarre",
 ]
 
-progname = "demo_mqtt_pub"
+
+progname = "demo_mqtt_sub"
+logfile_name = "demo_mqtt.log"
+configfile_name = "demo_config.ini"
+
 number_messages = 0
-logfile_name = ""
+
 # instances of classes
 myprint = 0
 mqttc = 0
@@ -153,21 +157,22 @@ def setup():
  # create class instances   
  
     path = os.path.dirname(os.path.realpath(__file__))    # current path
-    logfile_name = path + "/demo_mqtt.log"
-    print ("Name logfile: {} ".format(logfile_name) )
-    
+    print ("Name logfile: {} ".format( path + "/" + logfile_name) )
+    print ("Name configfile: {} ".format( path + "/" + configfile_name) ) 
+     
+# create Instance of MyPrint Class 
     myprint = MyPrint(  appname = progname, 
                     debug_level = debug,
-                    logfile = logfile_name ) 
-                        # Instanz von MyPrint Class erstellen
-                                            # provide app_name and logfilename
+                    logfile =  path + "/" + logfile_name ) 
+  
 
+ # create Instance of MQTT-Conn Class  
     mqttc = MQTT_Conn ( debug = debug, 
                         path = path, 
                         client = progname, 
                         ipadr = mqtt_broker_ip_cmdline, 
                         retry = retry, 
-                        conf = "/demo_config.ini" )    # creat instance, of Class MQTT_Conn  
+                        conf = path + "/" + configfile_name)    # creat instance, of Class MQTT_Conn  
                         
 #     check the status of the connection
     mqtt_connect, mqtt_error = mqttc.get_status()           # get connection status
