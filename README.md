@@ -16,6 +16,8 @@ Demo MQTT  (**MQTT made easy**):
 Two demo programs demonstrate the use of MQTT mosquitto in the pi. The MQTTCon class encapsulates
 most of the code and make it easy to implement programs publishing and subscribing to the broker.
  
+###What is in the repo
+ 
 - Folder root contains the demo programs
 - Folder sub contains the three Python class definition files 
 - Folder mosquitto_config holds files to setup a user config file for the mosquitto browser on the pi
