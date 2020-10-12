@@ -357,7 +357,7 @@ class MQTT_Conn(MyPrint):
  #--- Method mqtt_set_will ----------------------
     def set_will (self, topic_in, will_string):
         self.myprint (DEBUG_LEVEL2,  self.printstring + "set_will() called, topic: {}".format(topic_in))
-        self.mqttc.will_set (topic_in, will_string, 0, False )
+        self.mqttc.will_set (topic_in, will_string, 1, False )
         pass
   
  #--- Method mqtt_set_topic ----------------------

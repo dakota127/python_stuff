@@ -30,8 +30,8 @@ mqtt_status = False
 mqtt_error = 0
 wait_time = 6
 retry = False
-MQTT_TOPIC_PUB =   "test2"      # test2
-MQTT_TOPIC_SUB =   "test"           # test
+MQTT_TOPIC_PUB =   "test"           # test
+MQTT_TOPIC_SUB =   "test2"           # test2
 MQTT_TOPIC_CMD =   "commands"
 mqtt_broker_ip_cmdline = ""     # ipc adr from commandline
 
@@ -109,7 +109,7 @@ def publish_messages ():
         #  byte one,two, three: message count with leading zeros
         #  from byte four:     text
         payload = "{:d}{:03d}{}".format (0,y, random.choice(MESSAGES)) 
-        mqtt_error = mqttc.publish_msg (MQTT_TOPIC_SUB, payload)
+        mqtt_error = mqttc.publish_msg (MQTT_TOPIC_PUB, payload)
 #        time.sleep(0.3)
         if mqtt_error > 0:
             myprint.myprint (DEBUG_LEVEL0, progname +  ": publish returns errorcode: {}".format(mqtt_error)) 
@@ -117,7 +117,7 @@ def publish_messages ():
 
     #   send last message with indicator 8 and some text
     payload = "{:d}{:03d}{}".format (8,0, "the end")
-    mqtt_error = mqttc.publish_msg (MQTT_TOPIC_SUB, payload)
+    mqtt_error = mqttc.publish_msg (MQTT_TOPIC_PUB, payload)
     
     print ("Number of messages sent: {}".format(number_messages))
     number_messages = 0
@@ -125,7 +125,7 @@ def publish_messages ():
 
   
 
-# handle incoming messages with topic MQTT_TOPIC_PUB
+# handle incoming messages with topic MQTT_TOPIC_SUB
 #--------------------------------------
 def handle_message_1 (client, userdata, message):
      print ("message received: {}, userdata: {} ".format( message.payload.decode(), userdata))
@@ -136,7 +136,7 @@ def handle_message_1 (client, userdata, message):
 #-------------------------------------------------------------       
 def do_pub():        
 # subscribe to MQTT topics   
-    res = mqttc.subscribe_topic (MQTT_TOPIC_PUB , handle_message_1)     # subscribe to topic
+    res = mqttc.subscribe_topic (MQTT_TOPIC_SUB , handle_message_1)     # subscribe to topic
     if (res > 0):
    
         myprint.myprint (DEBUG_LEVEL0, progname +  ": subscribe returns errorcode: {}".format(res)) 
@@ -173,7 +173,9 @@ def setup():
                         ipadr = mqtt_broker_ip_cmdline, 
                         retry = retry, 
                         conf = path + "/" + configfile_name)    # creat instance, of Class MQTT_Conn  
-                        
+    
+ # set will and testament - this needs to done BEFORE a connect !!     
+    mqttc.set_will (MQTT_TOPIC_PUB," the publisher unexpectedly died... my condolences.")                       
 #     check the status of the connection
     mqtt_connect, mqtt_error = mqttc.get_status()           # get connection status
     #  returns mqtt_error = 128 if not connected to broker
@@ -188,8 +190,6 @@ def setup():
         myprint.myprint (DEBUG_LEVEL0, progname + ": serious mqtt error,quit")           
         sys.exit(2)
         
-
-    mqttc.set_will ("test"," mein letzter wille....")
 
     myprint.myprint (DEBUG_LEVEL0,  progname + ": setup done")
 
