@@ -21,7 +21,7 @@ import datetime
 import argparse
 
 from sub.myprint import MyPrint              # Class MyPrint replace print, debug output
-from sub.configread import ConfigRead
+from sub.myconfig import ConfigRead
 
 
 # ***** Variables *****************************
