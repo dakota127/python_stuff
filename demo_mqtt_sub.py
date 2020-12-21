@@ -15,7 +15,7 @@ import paho.mqtt.client as mqtt
 import argparse, os, sys
 import time
 from sub.myprint import MyPrint             # Class MyPrint replace print, debug output
-from sub.mqtt import MQTT_Conn              # Class MQTT_Conn handles MQTT stuff
+from sub.mymqtt import MQTT_Conn              # Class MQTT_Conn handles MQTT stuff
 
 # Define Variables
 
