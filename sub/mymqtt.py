@@ -39,7 +39,7 @@ import paho.mqtt.client as mqtt
 import socket
 from datetime import date
 from sub.myprint import MyPrint             # Class MyPrint
-from sub.configread import ConfigRead       # Class ConfigRead 
+from sub.myconfig import ConfigRead       # Class ConfigRead 
 
 
 # define debug levels, 0= default, oterh values with commandline parameter -d
@@ -49,8 +49,6 @@ DEBUG_LEVEL2=2
 DEBUG_LEVEL3=3
 CONNECT_COUNTER = 5     # loopp counter für mqtt connection
 PUBLISH_COUNTER = 2
-RETRY_INTERVALL = 4     # seconds
-RETRY_NUMBER    = 3    # how many times, do this by default
                         # if retry is True, do it forever..
 #-------------------------------------------------
 # Class MQTT_Conn inherits from Class MyPrint and from
@@ -85,8 +83,8 @@ class MQTT_Conn(MyPrint):
         self._IP =""                          # this machines ip adr
         self.ipadr_to_use = ""                   # ipad we are going to use
         self.printstring = "--> MQTT_Conn: "
-        self.retry_counter = RETRY_NUMBER         # how many times to retry connection 
-               
+        self.retry_counter = 1
+                       
 #   Config Directory containing important parameters
 #   will be updated from the configfile
 #   here are the defaultvalues in a python directory (key value pair)
@@ -98,7 +96,9 @@ class MQTT_Conn(MyPrint):
             "mqtt_pw"       : "mypassword",
             "mqtt_qos"      : 0  ,
             "mqtt_retain"   : 0 ,
-            "userdata"      : "",
+            "retry_intervall" : 1,          # seconds
+            "retry_counter"  : 2,
+            "userdata"      : "u-data",
         }
 
  # get get data from configfile
@@ -221,8 +221,8 @@ class MQTT_Conn(MyPrint):
 # --- private function connect_broker()
 #---------------------------------------------------
     def __connect_broker__ (self):
-        pass
-        
+
+        self.retry_counter = int(self.cfgdir_mqtt["retry_counter"])        
         while (self.retry_counter > 0):
             try:
                 self.connect_flag = False               # set to False and try connection
@@ -247,8 +247,8 @@ class MQTT_Conn(MyPrint):
             if not self.retry:                          # retry is True if retry requested
                 self.retry_counter -= 1                 # if not requested, retry
             self.myprint (DEBUG_LEVEL3,  self.printstring + "doing retry on connection")                    
-            time.sleep(RETRY_INTERVALL)
- #           print (self.retry_counter )
+            time.sleep(int(self.cfgdir_mqtt["retry_intervall"]))
+#           print (self.retry_counter )
             pass     
         
     
