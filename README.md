@@ -13,6 +13,8 @@ Often one needs to read parameters from a config file. The ConfigRead class make
 
 Demo MQTT  (**MQTT made easy**):
 
+New: Works with mosquitto v2.x on the Pi <------------------------
+
 Two demo programs demonstrate the use of MQTT mosquitto in the pi. The MQTTCon class encapsulates
 most of the code and make it easy to implement programs publishing and subscribing to the broker.
  
