@@ -49,7 +49,7 @@ wait_time = 10
 retry = False                   # do not retry on connect to brokaer
 
 
-progname = "demo_mqtt_sub"
+progname = "demo_mqtt_sub "
 logfile_name = "demo_mqtt.log"
 configfile_name = "demo_config.ini"
 
@@ -60,7 +60,7 @@ configfile_name = "demo_config.ini"
 #----------------------------------------------------------
 # get and parse commandline args
 def argu():
-    global debug, mqtt_broker_ip_cmdline, retry
+    global debug, mqtt_broker_ip_cmdline, retry, broker_user_id, broker_user_passwort
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", help="small debug", action='store_true')
@@ -80,6 +80,7 @@ def argu():
         retry = True
     if args.i: 
        mqtt_broker_ip_cmdline = args.i
+   
  
     return(args)
 #----------------------------------------------------------
@@ -158,26 +159,7 @@ def setup():
                     logfile =  path + "/" + logfile_name ) 
   
 
-  # Broker IP Adresse bestimmen
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-    # doesn't even have to be reachable
-        s.connect(('10.255.255.255', 1))
-        IPAdr_this_machine = s.getsockname()[0]
-    except:
-        IPAdr_this_machine = '127.0.0.1'
-    finally:
-        s.close()
-        print("IPAdr this machine:{}".format(IPAdr_this_machine))
 
-
-    # falls eine Ipadr auf der commandline gegeben wird, nehme diese
-    if len (mqtt_broker_ip_cmdline) >0 :
-
-        MQTT_BROKER_IPADR = mqtt_broker_ip_cmdline
-        
-
-    print ("MQTT Subscriber, using IP_ADR:{} and Port:{}".format(MQTT_BROKER_IPADR, MQTT_PORT))
 
  # create Instance of MQTT-Conn Class  
     mqttc = MQTT_Conn ( debug = debug, 
@@ -186,7 +168,9 @@ def setup():
                         ipadr = mqtt_broker_ip_cmdline, 
                         retry = retry, 
                         conf = path + "/" + configfile_name)    # creat instance, of Class MQTT_Conn  
-                        
+
+    myprint.myprint (DEBUG_LEVEL0 ,progname + "object created: {}".format(mqttc))
+
     mqtt_connect, mqtt_error = mqttc.get_status()           # get connection status
     #  returns mqtt_error = 128 if not connected to broker
     if mqtt_connect == True:

@@ -1,12 +1,10 @@
 #!/bin/bash
 
-#  setup switcher
-
-echo "kopiere Files für mosquitto"
+# copy mosquitto cuser config files to the correct folder on the pi
 
 # User Config mosquitto ---------------
 echo " "
-echo "Kopiere Files für mosquitto"
+echo "Copy Files für mosquitto"
 
 file="/etc/mosquitto/conf.d/my_mosquitto.conf"
 if [ -f "$file" ]
@@ -15,7 +13,7 @@ then
 	sudo rm -f $file
 fi
 echo "$file not found, copy"
-sudo cp -n -v mosquitto_stuff/my_mosquitto.conf /etc/mosquitto/conf.d
+sudo cp -n -v mosquitto_config/my_mosquitto.conf /etc/mosquitto/conf.d
 
 # Password file   ---------------
 sudo rm -f my_passw.txt
@@ -27,7 +25,7 @@ then
 fi
 
 echo "$file not found, also kopiere"
-sudo cp -n -v mosquitto_stuff/my_passw.txt /etc/mosquitto
+sudo cp -n -v mosquitto_config/my_passw.txt /etc/mosquitto
 
 
 # acl file   ---------------
@@ -40,7 +38,7 @@ then
 fi
 
 echo "$file not found, also kopiere"
-sudo cp -n -v mosquitto_stuff/my_aclfile.txt /etc/mosquitto
+sudo cp -n -v mosquitto_config/my_aclfile.txt /etc/mosquitto
 
 
 # encrypt the passowrd file
