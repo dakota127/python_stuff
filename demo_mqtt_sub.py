@@ -14,6 +14,7 @@
 import paho.mqtt.client as mqtt
 import argparse, os, sys
 import time
+import socket
 from sub.myprint import MyPrint             # Class MyPrint replace print, debug output
 from sub.mymqtt import MQTT_Conn              # Class MQTT_Conn handles MQTT stuff
 
@@ -26,6 +27,15 @@ DEBUG_LEVEL3=3
 debug=0
 terminate = False
 what_to_do = 1                  # action 1
+
+# Define Variables
+MQTT_BROKER_IPADR = "127.0.0.1"         # default value, durch commandline parm zu ändern
+MQTT_PORT = 1883
+MQTT_KEEPALIVE_INTERVAL = 45
+mqtt_broker_ip_cmdline = ""   # # ipc adr from commandline
+broker_user_id = ""
+broker_user_passwort = ""
+
 MQTT_TOPIC_PUB =   "test2"
 MQTT_TOPIC_SUB =   "test"
 MQTT_TOPIC_CMD =   "commands"
@@ -133,7 +143,7 @@ def do_pub():
 # Setup routine
 # -----------------------------------------------------
 def setup():
-    global mqttc, myprint, mqtt_connect
+    global mqttc, myprint, mqtt_connect, MQTT_BROKER_IPADR, mqtt_broker_ip_cmdline, broker_user_id, broker_user_passwort
     
     print(progname + "started: {}".format(time.strftime('%X')))   
     argu()                          # get commandline argumants
@@ -147,6 +157,27 @@ def setup():
                     debug_level = debug,
                     logfile =  path + "/" + logfile_name ) 
   
+
+  # Broker IP Adresse bestimmen
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+    # doesn't even have to be reachable
+        s.connect(('10.255.255.255', 1))
+        IPAdr_this_machine = s.getsockname()[0]
+    except:
+        IPAdr_this_machine = '127.0.0.1'
+    finally:
+        s.close()
+        print("IPAdr this machine:{}".format(IPAdr_this_machine))
+
+
+    # falls eine Ipadr auf der commandline gegeben wird, nehme diese
+    if len (mqtt_broker_ip_cmdline) >0 :
+
+        MQTT_BROKER_IPADR = mqtt_broker_ip_cmdline
+        
+
+    print ("MQTT Subscriber, using IP_ADR:{} and Port:{}".format(MQTT_BROKER_IPADR, MQTT_PORT))
 
  # create Instance of MQTT-Conn Class  
     mqttc = MQTT_Conn ( debug = debug, 

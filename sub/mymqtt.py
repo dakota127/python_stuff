@@ -38,6 +38,7 @@ from time import sleep
 import paho.mqtt.client as mqtt
 import socket
 from datetime import date
+from datetime import date, datetime, timedelta
 from sub.myprint import MyPrint             # Class MyPrint
 from sub.myconfig import ConfigRead       # Class ConfigRead 
 
@@ -49,7 +50,11 @@ DEBUG_LEVEL2=2
 DEBUG_LEVEL3=3
 CONNECT_COUNTER = 5     # loopp counter für mqtt connection
 PUBLISH_COUNTER = 2
-                        # if retry is True, do it forever..
+
+receive_window = False
+synch_msg_in = ""
+message_received_flag = False
+message_number = 0 
 #-------------------------------------------------
 # Class MQTT_Conn inherits from Class MyPrint and from
 #   class ConfigRead 
@@ -84,7 +89,11 @@ class MQTT_Conn(MyPrint):
         self.ipadr_to_use = ""                   # ipad we are going to use
         self.printstring = "--> MQTT_Conn: "
         self.retry_counter = 1
-                       
+        self.message_received_flag = False
+        self.timeout_flag = False
+    
+               
+               
 #   Config Directory containing important parameters
 #   will be updated from the configfile
 #   here are the defaultvalues in a python directory (key value pair)
@@ -127,6 +136,7 @@ class MQTT_Conn(MyPrint):
 
 # add random chars to client-id (in case user runs program twice)
         self.mqtt_client_id = self.mqtt_client_id.join(random.choice("ABCDEFG") for _ in range(2))
+        
         
 # Eventhandler
 #----Function Callback (msg gekommen )--------------------------------
@@ -189,10 +199,10 @@ class MQTT_Conn(MyPrint):
         else: 
             self.ipadr_to_use =  self._IP
                   
-        self.myprint (DEBUG_LEVEL3,  self.printstring + "Use this IP-Adr.: {}".format(self.ipadr_to_use))
-        self.myprint (DEBUG_LEVEL3,  self.printstring + "UserID: {} , Passwort: {} , QoS: {} , Retain: {}".format \
+        self.myprint (DEBUG_LEVEL2,  self.printstring + "Use this IP-Adr.: {}".format(self.ipadr_to_use))
+        self.myprint (DEBUG_LEVEL2,  self.printstring + "UserID: {} , Passwort: {} , QoS: {} , Retain: {}".format \
         (self.cfgdir_mqtt["mqtt_userid"], self.cfgdir_mqtt["mqtt_pw"], self.cfgdir_mqtt["mqtt_qos"], self.cfgdir_mqtt["mqtt_retain"]))
-
+        self.myprint (DEBUG_LEVEL2,  self.printstring + "retry_intervall: {}  retry_counter: {}".format(self.cfgdir_mqtt["retry_intervall"], self.cfgdir_mqtt["retry_counter"]))
 
 # finally, we come the actual MQTT stuff, we know the ip addr to use
         self.mqttc = mqtt.Client(self.mqtt_client_id, True, self.cfgdir_mqtt["userdata"])       # Initiate MQTT Client
@@ -221,19 +231,22 @@ class MQTT_Conn(MyPrint):
 # --- private function connect_broker()
 #---------------------------------------------------
     def __connect_broker__ (self):
-
-        self.retry_counter = int(self.cfgdir_mqtt["retry_counter"])        
-        while (self.retry_counter > 0):
+        pass
+        self.myprint (DEBUG_LEVEL0, self.printstring + "_connect_broker() called")
+        self.retry_counter = int(self.cfgdir_mqtt["retry_counter"])
+        
+        
+        while ( self.retry_counter > 0):
             try:
                 self.connect_flag = False               # set to False and try connection
                 self.mqttc.connect(self.ipadr_to_use, int(self.cfgdir_mqtt["mqtt_port"]), int(self.cfgdir_mqtt["mqtt_keepalive_intervall"])) 
      #       self.mqttc.connect(self.ipadr_to_use,1883)         # for test
                 time.sleep(0.2) 
                 self.mqttc.loop_start()                             # start the loop, see docu
-                print ("after connect")           
+        
                 time.sleep(0.3)
                 if self.connect_flag:
-                    self.myprint (DEBUG_LEVEL0,  self.printstring + "MQTT Connect OK")        
+                    self.myprint (DEBUG_LEVEL1,  self.printstring + "MQTT Connect OK")        
                     break        # connect seems ok          
                 else:
                     if self.mqtt_error == 5:            # treat error user_id/password differently
@@ -248,7 +261,7 @@ class MQTT_Conn(MyPrint):
                 self.retry_counter -= 1                 # if not requested, retry
             self.myprint (DEBUG_LEVEL3,  self.printstring + "doing retry on connection")                    
             time.sleep(int(self.cfgdir_mqtt["retry_intervall"]))
-#           print (self.retry_counter )
+ #           print (self.retry_counter )
             pass     
         
     
@@ -337,6 +350,59 @@ class MQTT_Conn(MyPrint):
 #------------------------------------------------
 
 
+#------------------------------------------------
+#
+    def request_response_init(self, response_topic):
+        self.subscribe_topic ( topic_in = response_topic, callback_function = self.my_callback_msgsync)
+       
+
+
+
+#--- Method msg_sync ----------------------
+    def transmit_sync (self, topic_in, payload, response_topic, time_out):
+        global receive_window, synch_msg_in, message_received_flag, message_number
+
+        self.myprint (DEBUG_LEVEL2,  self.printstring + "msg_sync() called, topic: {}, response_topic: {}, time_out: {}".format(topic_in, response_topic, time_out))
+    
+       # return (3,"  ")                             # <<------------------------
+
+        message_number = message_number +1
+        if message_number > 998:
+            message_number = 1
+        nbr_str = "{0:0>4}".format(message_number)
+        payl = nbr_str + "{:15}{}".format(response_topic,payload) 
+       
+
+        receive_window = True
+        message_received_flag = False
+        self.timeout_flag = False
+
+        self.publish_msg (topic_in, payl)
+        
+        start_time = datetime.now()                 # time msg sent
+       
+        while True :
+            if message_received_flag:
+                break
+            time.sleep(0.2) #wait for message
+            self.myprint (DEBUG_LEVEL2,  self.printstring + "waitung for synch msg...")
+            elapsed1 = datetime.now() - start_time
+            elapsed2= ((1000000 * elapsed1.seconds + elapsed1.microseconds) / 1000000.0)
+            self.myprint (DEBUG_LEVEL2,  self.printstring + "Laufzeit (s): {}".format(elapsed2 )  ) 
+            if elapsed2 > time_out:
+                self.timeout_flag = True
+                break
+        receive_window == False
+
+        if self.timeout_flag:
+            return (9,"")
+        
+        self.myprint (DEBUG_LEVEL2,  self.printstring + "synch_msg: {}".format(synch_msg_in))
+        
+        return (0,synch_msg_in) 
+
+
+
 #--- Method mqtt_set_topic ----------------------
     def subscribe_topic (self, topic_in, callback_function):
         self.myprint (DEBUG_LEVEL2,  self.printstring + "subscribe_topic() called, topic: {}".format(topic_in))    
@@ -373,9 +439,35 @@ class MQTT_Conn(MyPrint):
             self.myprint (DEBUG_LEVEL0,  self.printstring +   "unsubscribe: check your topic string!")
             self.mqtt_error = 77       
         finally:
-            return ( self.mqtt_error )       
+            return ( self.mqtt_error )    
+        pass   
 
+ 
+
+# Eventhandler for sync messages       
+#----Function Callback msg_sync (msg gekommen )--------------------------------
+    def my_callback_msgsync(self, mosq, obj, msg):
+
+        global receive_window, synch_msg_in, message_received_flag
+
+        self.myprint (DEBUG_LEVEL1, self.printstring + "my_callback_msgsync() called with message: topic: {},  payload: {}".format( msg.topic,msg.payload.decode()))
+       
+        msg = msg.payload.decode()  
+        msg_numbr = msg[:4]
+        if message_number != (int(msg_numbr)):
+            self.myprint (DEBUG_LEVEL1, self.printstring + "message wrong number, payload: {}".format(msg)   )
+            return                                  # msg consumed, but worthless 
+
+        if receive_window == False:
+            self.myprint (DEBUG_LEVEL1, self.printstring + "message outside receive_window, payload: {}".format(msg)   )
+            return                                  # msg consumed, but worthless 
         
+
+        synch_msg_in =  msg    
+     #   print (synch_msg_in)
+        message_received_flag = True
+                 
+
   
 # Eventhandler       
 #----Function Callback (msg gekommen )--------------------------------
